@@ -21,8 +21,8 @@ dir_path = Path("/Users/bmmorris/data/apo/Q2UW01/UT250606/")
 image_paths = sorted(glob(str(dir_path / Path('obs_10s*.fits'))))
 dark_30s_paths = glob(str(dir_path / Path('arctic_dark_60s.*.fits')))
 night_flat_paths = glob(str(dir_path / Path('dark_sky_flat.*.fits')))
-master_flat_path = 'outputs/masterflat.fits'
-master_dark_path = 'outputs/masterdark.fits'
+master_flat_path = 'outputs/masterflat_20250606.fits'
+master_dark_path = 'outputs/masterdark_20250606.fits'
 
 # Photometry settings
 target_centroid = [401.6, 368.2]
@@ -60,8 +60,8 @@ print('Calculating PCA...')
 
 light_curve = PCA_light_curve(phot_results, transit_parameters, plots=False,
                               plot_validation=False, buffer_time=1*u.min,
-                              validation_duration_fraction=0.8,
-                              validation_time=1.2, outlier_rejection=True)
+                              n_validation_frames=80, outlier_rejection=True,
+                              flux_threshold=0.9)
 
 
 times = Time(phot_results.times, format='jd')
@@ -78,9 +78,10 @@ ax.xaxis.set_major_formatter(formatter)
 
 # plt.plot(times.datetime, transit_model_b(phot_results.times), 'r')
 ax.set(
-    xlabel='Time [JD]',
+    xlabel='Time [UT]',
     ylabel='Flux',
-    ylim=[0.8, 1.20]
+    ylim=[0.8, 1.20],
+    title='UT06-06-2025',
 )
 # plt.show()
 plt.savefig('outputs/UT06-06-2025.png', bbox_inches='tight', dpi=250)

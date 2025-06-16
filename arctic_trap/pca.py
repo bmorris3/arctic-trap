@@ -12,8 +12,8 @@ __all__ = ['PCA_light_curve']
 
 def PCA_light_curve(pr, transit_parameters, buffer_time=5*u.min,
                     outlier_mad_std_factor=3.0, plots=False,
-                    validation_duration_fraction=1/6,
-                    flux_threshold=0.89, validation_time=-0.65,
+                    n_validation_frames=80,
+                    flux_threshold=0.89, 
                     plot_validation=False, outlier_rejection=True):
     """
     Parameters
@@ -29,12 +29,6 @@ def PCA_light_curve(pr, transit_parameters, buffer_time=5*u.min,
     -------
     best_lc : `~numpy.ndarray`
     """
-    expected_mid_transit_jd = ((np.max(np.abs(pr.times - transit_parameters.t0) //
-                                       transit_parameters.per)) *
-                               transit_parameters.per + transit_parameters.t0) #+ transit_parameters.per
-    mid_transit_time = Time(expected_mid_transit_jd, format='jd')
-
-    transit_duration = transit_parameters.duration + buffer_time
 
     final_lc_mad = np.ones(len(pr.aperture_radii))
 
@@ -62,17 +56,9 @@ def PCA_light_curve(pr, transit_parameters, buffer_time=5*u.min,
                                mad_std(flux_i))
                inliers &= new_inliers
 
-        # out_of_transit = ((Time(pr.times, format='jd') > mid_transit_time + transit_duration/2) |
-        #                   (Time(pr.times, format='jd') < mid_transit_time - transit_duration/2))
         out_of_transit = np.ones_like(pr.times).astype(bool)
 
-        # validation_duration = validation_duration_fraction * transit_duration
-
-        # validation_mask = ((Time(pr.times, format='jd') < mid_transit_time +
-        #                     validation_time * transit_duration + validation_duration / 2) &
-        #                    (Time(pr.times, format='jd') > mid_transit_time +
-        #                     validation_time * transit_duration - validation_duration / 2))
-        validation_mask = np.arange(len(pr.times)) < 80
+        validation_mask = np.arange(len(pr.times)) < n_validation_frames
 
         oot = out_of_transit & inliers
         oot_no_validation = (out_of_transit & inliers & np.logical_not(validation_mask))
@@ -82,7 +68,6 @@ def PCA_light_curve(pr, transit_parameters, buffer_time=5*u.min,
             plt.plot(pr.times[oot], target_fluxes[oot], '.', label='oot')
             plt.plot(pr.times[validation_mask], target_fluxes[validation_mask], '.',
                      label='validation')
-            # plt.axvline(mid_transit_time.jd, ls='--', color='r', label='midtrans')
             plt.legend()
             plt.title(np.count_nonzero(validation_mask))
             plt.xlabel('JD')
