@@ -27,9 +27,13 @@ master_dark_path = 'outputs/masterdark_20250606.fits'
 # Photometry settings
 target_centroid = [401.6, 368.2]
 comparison_flux_threshold = 0.05
-aperture_radii = np.arange(7, 30)
+aperture_radii = np.arange(20, 40)
 centroid_stamp_half_width = 15
 psf_stddev_init = 2
+
+# aperture radius = 10 pix
+# annulus goes from `aperture_radii` to `aperture_radii + aperture_annulus_radius` pix
+
 aperture_annulus_radius = 10
 transit_parameters = params_b
 star_positions = np.loadtxt('outputs/centroids-UT06-06-2025.csv')
@@ -58,11 +62,10 @@ else:
 
 print('Calculating PCA...')
 
-light_curve = PCA_light_curve(phot_results, transit_parameters, plots=False,
+light_curve = PCA_light_curve(phot_results, transit_parameters, plots=True,
                               plot_validation=False, buffer_time=1*u.min,
                               n_validation_frames=80, outlier_rejection=True,
-                              flux_threshold=0.9)
-
+                              flux_threshold=0.9, outlier_mad_std_factor=4)
 
 times = Time(phot_results.times, format='jd')
 window = 5
@@ -83,5 +86,5 @@ ax.set(
     ylim=[0.8, 1.20],
     title='UT06-06-2025',
 )
-# plt.show()
 plt.savefig('outputs/UT06-06-2025.png', bbox_inches='tight', dpi=250)
+plt.show()

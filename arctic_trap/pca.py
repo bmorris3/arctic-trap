@@ -64,8 +64,7 @@ def PCA_light_curve(pr, transit_parameters, buffer_time=5*u.min,
         oot_no_validation = (out_of_transit & inliers & np.logical_not(validation_mask))
         if plot_validation:
             plt.figure()
-            plt.plot(pr.times[~oot], target_fluxes[~oot], '.', label='in-t')
-            plt.plot(pr.times[oot], target_fluxes[oot], '.', label='oot')
+            plt.plot(pr.times[oot], target_fluxes[oot], 'o', label='all')
             plt.plot(pr.times[validation_mask], target_fluxes[validation_mask], '.',
                      label='validation')
             plt.legend()

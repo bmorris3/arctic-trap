@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 from astropy.io import fits
 from astropy.time import Time
 from astropy.utils.console import ProgressBar
@@ -25,7 +26,7 @@ def rebin_image(a, binning_factor):
 
 def photometry(image_paths, master_dark_path, master_flat_path, star_positions,
                aperture_radii, centroid_stamp_half_width, psf_stddev_init,
-               aperture_annulus_radius, output_path):
+               aperture_annulus_radius, output_path, plot_stamps=False):
     """
     Parameters
     ----------
@@ -112,10 +113,11 @@ def photometry(image_paths, master_dark_path, master_flat_path, star_positions,
                                         np.clip(int(init_x) + centroid_stamp_half_width, 0, imagedata.shape[0]),
                                         np.clip(int(init_y) - centroid_stamp_half_width, 0, imagedata.shape[1]):
                                         np.clip(int(init_y) + centroid_stamp_half_width, 0, imagedata.shape[1])]
-                # import matplotlib.pyplot as plt
-                # plt.figure()
-                # plt.imshow(image_stamp)
-                # plt.show()
+
+                if plot_stamps:
+                    plt.figure()
+                    plt.imshow(image_stamp)
+                    plt.show()
 
                 # Measure stellar centroid with 2D gaussian fit
                 x_stamp_centroid, y_stamp_centroid = centroid_com(image_stamp)
